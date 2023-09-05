@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\SchoolYear;
 use App\Entity\Tag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -73,8 +74,35 @@ class TagRepository extends ServiceEntityRepository
             ->setParameter('keyword', "%$keyword%")
             ->orderBy('t.name', 'ASC')
             ->getQuery()
-            ->getResult()
-            ;
+            ->getResult();
+    }
+
+    //pour fonction findBySchoolYear, le query builder genere le code sql suivant :
+    //requete sql ds phpmyuadmin pour tester le resultat ac id 1 : 
+    //SELECT tag.id, tag.name, tag.description
+    // FROM `tag`
+    // INNER JOIN student_tag ON tag.id = student_tag.tag_id
+    // INNER JOIN student ON student.id = student_tag.student_id
+    // INNER JOIN school_year ON school_year.id = student.school_year_id
+    // WHERE school_year.id = 1
+    // GROUP BY tag.id, tag.name, tag.description
+    // ORDER BY tag.name;
+
+    /**
+     * This method finds tags based on a schoolyear, by making inner join with students and with tags
+     * @param SchoolYear $schoolYear the schoolyear for which we awnt to find the tags
+     * @return Tag[] Returns an array of Tag objects
+     */
+    public function findBySchoolYear(SchoolYear $schoolYear): array
+    {
+        return $this->createQueryBuilder('t')
+            ->innerJoin('t.students', 'stud')
+            ->innerJoin('stud.schoolYear', 'sy')
+            ->andWhere('sy = :schoolYear')
+            ->setParameter('schoolYear', $schoolYear)
+            ->orderBy('t.name', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
 

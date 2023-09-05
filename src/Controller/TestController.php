@@ -97,6 +97,17 @@ class TestController extends AbstractController
         $keywordTags1 = $repository->findByKeyword('HTML');
         $keywordTags2 = $repository->findByKeyword('Dolorem');
 
+        //recuperation de tags à partir de schoolyear
+        $schoolYearRepository = $em->getRepository(SchoolYear::class);
+        $schoolYear = $schoolYearRepository->find(4);
+        $schoolYearTags = $repository->findBySchoolYear($schoolYear);
+
+        //maj des relations d'un tag
+        //ajout à student 2 du tag 1(html)
+        $student = $studentRepository->find(2);
+        $htmlTag = $repository->find(1);
+        $htmlTag->addStudent($student);
+        $em->flush();
 
         $title = 'Test des tags';
 
@@ -109,6 +120,8 @@ class TestController extends AbstractController
             'notNullDescriptionTags' => $notNullDescriptionTags,
             'keywordTags1' => $keywordTags1,
             'keywordTags2' => $keywordTags2,
+            'schoolYearTags' => $schoolYearTags,
+            'htmlTag' => $htmlTag,
         ]);
     }
 
